@@ -165,3 +165,35 @@ Blockly.Blocks['front_lever'] = {
     });
   }
 };
+
+Blockly.Blocks['muscle_up'] = {
+  /**
+   * Block for muscle up exercise (used for shadow).
+   * @this Blockly.Block
+   */
+  init: function() {
+    this.jsonInit({
+      "id": "muscle_up",
+      "message0": "%1",
+      "args0": [
+        {
+          "type": "field_image",
+          "src": Blockly.mainWorkspace.options.pathToMedia + "icons/exercise_icons/calisthenics/muscle_up.svg",
+          "width": 40,
+          "height": 40,
+          "alt": "muscle up Exercise",
+        },
+        
+      ],
+      "inputsInline": true,
+      "previousStatement": null,
+      "nextStatement": null,
+      "category": Blockly.Categories.looks,
+      // "colour": Blockly.Colours.looks.primary,
+      "colour": "#4C97FF",
+      "colourSecondary": Blockly.Colours.looks.secondary,
+      "colourTertiary": Blockly.Colours.looks.tertiary,
+      "colourQuaternary": Blockly.Colours.looks.quaternary
+    });
+  }
+};

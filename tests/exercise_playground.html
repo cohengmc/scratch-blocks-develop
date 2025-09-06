@@ -4,7 +4,7 @@
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
 
-    <title>Horizontal Playground</title>
+    <title>Exercise Playground</title>
 
     <script src="../blockly_uncompressed_horizontal.js"></script>
     <script src="../msg/messages.js"></script>
@@ -28,34 +28,16 @@
       var workspace = null;
 
       function start() {
-        var soundsEnabled = null;
-        if (sessionStorage) {
-          // Restore sounds state.
-          soundsEnabled = sessionStorage.getItem('soundsEnabled');
-          if (soundsEnabled === null) {
-            soundsEnabled = true;
-          } else {
-            soundsEnabled = (soundsEnabled === 'true');
-          }
-        } else {
-          soundsEnabled = true;
-        }
-        setSoundsEnabled(soundsEnabled);
+        var soundsEnabled = true; // Default to enabled
 
         // Setup blocks
         // Parse the URL arguments.
         var match = location.search.match(/dir=([^&]+)/);
         var rtl = match && match[1] == 'rtl';
-        document.forms.options.elements.dir.selectedIndex = Number(rtl);
         var toolbox = getToolboxElement();
-        document.forms.options.elements.toolbox.selectedIndex =
-          toolbox ? 1: 0;
 
         match = location.search.match(/side=([^&]+)/);
-
         var side = match ? match[1] : 'start';
-
-        document.forms.options.elements.side.value = side;
 
         workspace = Blockly.inject('blocklyDiv', {
           comments: false,
@@ -89,22 +71,6 @@
           }
         });
         
-        if (sessionStorage) {
-          // Restore previously displayed text.
-          var text = sessionStorage.getItem('textarea_json');
-          if (text) {
-            document.getElementById('importExport').value = text;
-          }
-          taChange();
-
-          // Restore event logging state.
-          var state = sessionStorage.getItem('logEvents');
-          logEvents(Boolean(state));
-
-          // Restore flyout event logging state.
-          state = sessionStorage.getItem('logFlyoutEvents');
-          logFlyoutEvents(Boolean(state));
-        }
       }
 
       function getToolboxElement() {
@@ -358,13 +324,6 @@
         '  </block>'
       ].join('\n');
 
-      function setSoundsEnabled(state) {
-        var checkbox = document.getElementById('soundsEnabled');
-        checkbox.checked = (state) ? 'checked' : '';
-        if (sessionStorage) {
-          sessionStorage.setItem('soundsEnabled', state);
-        }
-      }
       function fakeDrag(id, dx, dy, opt_workspace) {
         var ws = opt_workspace || Blockly.getMainWorkspace();
         var blockToDrag = ws.getBlockById(id);
@@ -806,9 +765,9 @@
       #blocklyDiv {
         position: fixed;
         top: 0;
-        right: 0;
+        left: 0;
         height: 100vh;
-        width: 70%;
+        width: 100%;
         z-index: 1;
       }
 
@@ -826,19 +785,6 @@
         border-radius: 3px;
       }
 
-      #importExport {
-        font-family: monospace;
-      }
-
-      /* Sidebar styles */
-      .sidebar {
-        width: 28%;
-        padding: 10px;
-        margin-right: 2%;
-        float: left;
-        overflow-y: auto;
-        max-height: 100vh;
-      }
 
     </style>
   </head>
@@ -846,76 +792,5 @@
   <body onload="start()">
     <div id="collaborators"></div>
     <div id="blocklyDiv"></div>
-
-    <!-- Sidebar -->
-    <div class="sidebar">
-      <h1>Horizontal Blocks</h1>
-      <p>
-        <a href="javascript:void(workspace.setVisible(true))">Show</a>
-        - <a href="javascript:void(workspace.setVisible(false))">Hide</a>
-      </p>
-
-      <form id="options">
-          <select name="dir" onchange="document.forms.options.submit()">
-            <option value="ltr">LTR</option>
-            <option value="rtl">RTL</option>
-          </select>
-          <select name="toolbox" onchange="document.forms.options.submit()">
-            <option value="categories">Categories</option>
-            <option value="simple">Simple</option>
-          </select>
-          <select name="side" onchange="document.forms.options.submit()">
-            <option value="start">Start</option>
-            <option value="end">End</option>
-            <option value="top">Top</option>
-            <option value="bottom">Bottom</option>
-          </select>
-        </form>
-
-      <p>
-        <input type="button" value="Export to JSON" onclick="toJson()">
-        &nbsp;
-        <input type="button" value="Import from JSON" onclick="fromJson()" id="import">
-        <br>
-        <textarea id="importExport" style="width: 100%; height: 12em"
-          onchange="taChange();" onkeyup="taChange()"></textarea>
-      </p>
-
-      <p>
-        Log events: &nbsp;
-        <input type="checkbox" onclick="logEvents(this.checked)" id="logCheck">
-      </p>
-
-      <p>
-        Log flyout events: &nbsp;
-        <input type="checkbox" onclick="logFlyoutEvents(this.checked)" id="logFlyoutCheck">
-      </p>
-
-      <p>
-        Enable sounds (after refresh): &nbsp;
-        <input type="checkbox" onclick="setSoundsEnabled(this.checked)" id="soundsEnabled">
-      </p>
-
-      <p>
-        Stress test: &nbsp;
-        <input type="button" value="Sprinkles!" onclick="sprinkles(100)">
-        <input type="button" value="Spaghetti!" onclick="spaghetti(10)">
-        <input type="button" value="Fake some drags!" onclick="fakeManyDrags()">
-      </p>
-
-      <p>
-        Glows: &nbsp;
-        <input type="button" value="Glow last clicked block" onclick="glowBlock()" />
-        <input type="button" value="Unglow last clicked block" onclick="unglowBlock()" />
-        <input type="button" value="Stack glow last clicked block" onclick="glowStack()" />
-        <input type="button" value="Stack unglow last clicked block" onclick="unglowStack()" />
-      </p>
-
-      <p>
-        <input type="button" value="Undo" onclick="workspace.undo()" />
-        <input type="button" value="Redo" onclick="workspace.undo(true)" />
-      </p>
-
-    </div>
   </body>
 </html>

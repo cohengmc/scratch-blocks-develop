@@ -101,6 +101,19 @@ Blockly.Blocks.defaultToolbox = {
               }
             }
           }
+        }, {
+          "kind": "block",
+          "type": "muscle_up",
+          "inputs": {
+            "DURATION": {
+              "shadow": {
+                "type": "math_positive_number",
+                "fields": {
+                  "NUM": "1"
+                }
+              }
+            }
+          }
         },
         {
           "kind": "block",
