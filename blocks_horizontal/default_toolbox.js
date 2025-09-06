@@ -101,8 +101,216 @@ Blockly.Blocks.defaultToolbox = {
               }
             }
           }
+        },
+        {
+          "kind": "block",
+          "type": "exercise_dips",
+          "inputs": {
+            "DURATION": {
+              "shadow": {
+                "type": "math_positive_number",
+                "fields": {
+                  "NUM": "1"
+                }
+              }
+            }
+          }
+        },
+        {
+          "kind": "block",
+          "type": "bw_squat",
+          "inputs": {
+            "DURATION": {
+              "shadow": {
+                "type": "math_positive_number",
+                "fields": {
+                  "NUM": "1"
+                }
+              }
+            }
+          }
+        }, {
+          "kind": "block",
+          "type": "front_lever",
+          "inputs": {
+            "DURATION": {
+              "shadow": {
+                "type": "math_positive_number",
+                "fields": {
+                  "NUM": "1"
+                }
+              }
+            }
+          }
         }
       ]
+    },
+    {
+      "kind": "category",
+      "name": "Activities",
+      "id": "activities",
+      "colour": "#fe4d65",
+      "secondaryColour": "#e2362f",
+      "contents": [{
+        "kind": "block",
+        "type": "baseball",
+        "inputs": {
+          "DURATION": {
+            "shadow": {
+              "type": "math_positive_number",
+              "fields": {
+                "NUM": "1"
+              }
+            }
+          }
+        }
+      },{
+        "kind": "block",
+        "type": "biking",
+        "inputs": {
+          "DURATION": {
+            "shadow": {
+              "type": "math_positive_number",
+              "fields": {
+                "NUM": "1"
+              }
+            }
+          }
+        }
+      },{
+        "kind": "block",
+        "type": "hiking",
+        "inputs": {
+          "DURATION": {
+            "shadow": {
+              "type": "math_positive_number",
+              "fields": {
+                "NUM": "1"
+              }
+            }
+          }
+        }
+      },{
+        "kind": "block",
+        "type": "pilates",
+        "inputs": {
+          "DURATION": {
+            "shadow": {
+              "type": "math_positive_number",
+              "fields": {
+                "NUM": "1"
+              }
+            }
+          }
+        }
+      },{
+        "kind": "block",
+        "type": "running",
+        "inputs": {
+          "DURATION": {
+            "shadow": {
+              "type": "math_positive_number",
+              "fields": {
+                "NUM": "1"
+              }
+            }
+          }
+        }
+      },{
+        "kind": "block",
+        "type": "surfing",
+        "inputs": {
+          "DURATION": {
+            "shadow": {
+              "type": "math_positive_number",
+              "fields": {
+                "NUM": "1"
+              }
+            }
+          }
+        }
+      },{
+        "kind": "block",
+        "type": "yoga",
+        "inputs": {
+          "DURATION": {
+            "shadow": {
+              "type": "math_positive_number",
+              "fields": {
+                "NUM": "1"
+              }
+            }
+          }
+        }
+      }]
+    },
+    {
+      "kind": "category",
+      "name": "ATG",
+      "id": "atg",
+      "colour": "#24c159",
+      "secondaryColour": "#209738",
+      "contents": [{
+        "kind": "block",
+        "type": "atg_lunge",
+        "inputs": {
+          "DURATION": {
+            "shadow": {
+              "type": "math_positive_number",
+              "fields": {
+                "NUM": "1"
+              }
+            }
+          }
+        }
+      }]
+    },
+    {
+      "kind": "category",
+      "name": "Weightlifting",
+      "id": "weightlifting",
+      "colour": "#dde3e5",
+      "secondaryColour": "#6c7d7d",
+      "contents": [{
+        "kind": "block",
+        "type": "back_squat",
+        "inputs": {
+          "DURATION": {
+            "shadow": {
+              "type": "math_positive_number",
+              "fields": {
+                "NUM": "1"
+              }
+            }
+          }
+        }
+      }, {
+        "kind": "block",
+        "type": "bench_press",
+        "inputs": {
+          "DURATION": {
+            "shadow": {
+              "type": "math_positive_number",
+              "fields": {
+                "NUM": "1"
+              }
+            }
+          }
+        }
+      }, {
+        "kind": "block",
+        "type": "deadlift",
+        "inputs": {
+          "DURATION": {
+            "shadow": {
+              "type": "math_positive_number",
+              "fields": {
+                "NUM": "1"
+              }
+            }
+          }
+        }
+      }]
     },
     {
       "kind": "category",
