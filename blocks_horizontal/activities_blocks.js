@@ -229,3 +229,35 @@ Blockly.Blocks['biking'] = {
       });
     }
   };
+
+  Blockly.Blocks['dancing'] = {
+    /**
+     * Block for dancing (used for shadow).
+     * @this Blockly.Block
+     */
+    init: function() {
+      this.jsonInit({
+        "id": "dancing",
+        "message0": "%1",
+        "args0": [
+          {
+            "type": "field_image",
+            "src": Blockly.mainWorkspace.options.pathToMedia + "icons/exercise_icons/activities/dancing.svg",
+            "width": 40,
+            "height": 40,
+            "alt": "dancing",
+          },
+          
+        ],
+        "inputsInline": true,
+        "previousStatement": null,
+        "nextStatement": null,
+        "category": Blockly.Categories.looks,
+        // "colour": Blockly.Colours.looks.primary,
+        "colour": "#fe4d65",
+        "colourSecondary": Blockly.Colours.event.secondary,
+        "colourTertiary": "#e2362f",
+        "colourQuaternary": Blockly.Colours.looks.quaternary
+      });
+    }
+  };

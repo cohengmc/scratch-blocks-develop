@@ -164,7 +164,7 @@ Blockly.Blocks.defaultToolbox = {
             }
           }
         }
-      },{
+      }, {
         "kind": "block",
         "type": "biking",
         "inputs": {
@@ -177,7 +177,7 @@ Blockly.Blocks.defaultToolbox = {
             }
           }
         }
-      },{
+      }, {
         "kind": "block",
         "type": "hiking",
         "inputs": {
@@ -190,7 +190,7 @@ Blockly.Blocks.defaultToolbox = {
             }
           }
         }
-      },{
+      }, {
         "kind": "block",
         "type": "pilates",
         "inputs": {
@@ -203,7 +203,7 @@ Blockly.Blocks.defaultToolbox = {
             }
           }
         }
-      },{
+      }, {
         "kind": "block",
         "type": "running",
         "inputs": {
@@ -216,7 +216,7 @@ Blockly.Blocks.defaultToolbox = {
             }
           }
         }
-      },{
+      }, {
         "kind": "block",
         "type": "surfing",
         "inputs": {
@@ -229,9 +229,22 @@ Blockly.Blocks.defaultToolbox = {
             }
           }
         }
-      },{
+      }, {
         "kind": "block",
         "type": "yoga",
+        "inputs": {
+          "DURATION": {
+            "shadow": {
+              "type": "math_positive_number",
+              "fields": {
+                "NUM": "1"
+              }
+            }
+          }
+        }
+      }, {
+        "kind": "block",
+        "type": "dancing",
         "inputs": {
           "DURATION": {
             "shadow": {
@@ -253,6 +266,27 @@ Blockly.Blocks.defaultToolbox = {
       "contents": [{
         "kind": "block",
         "type": "atg_lunge",
+        "inputs": {
+          "DURATION": {
+            "shadow": {
+              "type": "math_positive_number",
+              "fields": {
+                "NUM": "1"
+              }
+            }
+          }
+        }
+      }]
+    },
+    {
+      "kind": "category",
+      "name": "Head to Toe",
+      "id": "h2t",
+      "colour": "#2a7b30",
+      "secondaryColour": "#25c059",
+      "contents": [{
+        "kind": "block",
+        "type": "toe_touch",
         "inputs": {
           "DURATION": {
             "shadow": {
