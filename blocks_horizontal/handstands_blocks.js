@@ -14,20 +14,15 @@ Blockly.Blocks['exercise_chest_to_wall'] = {
   init: function() {
     this.jsonInit({
       "id": "exercise_chest_to_wall",
-      "message0": "%1 %2",
+      "message0": "%1",
       "args0": [
         {
           "type": "field_image",
           "src": Blockly.mainWorkspace.options.pathToMedia + "icons/exercise_icons/handstands/chest_to_wall.svg",
-          "width": 50,
-          "height": 50,
+          "width": 40,
+          "height": 40,
           "alt": "Chest to Wall Handstand",
         },
-        {
-          "type": "input_value",
-          "name": "DURATION",
-          "check": "Number"
-        }
       ],
       "inputsInline": true,
       "previousStatement": null,
@@ -50,19 +45,14 @@ Blockly.Blocks['exercise_back_to_wall'] = {
   init: function() {
     this.jsonInit({
       "id": "exercise_back_to_wall",
-      "message0": "%1 %2",
+      "message0": "%1",
       "args0": [
         {
           "type": "field_image",
           "src": Blockly.mainWorkspace.options.pathToMedia + "icons/exercise_icons/handstands/back_to_wall.svg",
-          "width": 50,
-          "height": 50,
+          "width": 40,
+          "height": 40,
           "alt": "Back to Wall Handstand",
-        },
-        {
-          "type": "input_value",
-          "name": "DURATION",
-          "check": "Number"
         }
       ],
       "inputsInline": true,

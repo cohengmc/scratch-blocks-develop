@@ -25,147 +25,241 @@ goog.provide('Blockly.Blocks.defaultToolbox');
 goog.require('Blockly.Blocks');
 
 /**
- * @fileoverview Provide a default toolbox XML.
+ * @fileoverview Provide a default toolbox JSON.
  */
 
-Blockly.Blocks.defaultToolbox = '<xml id="toolbox-categories" style="display: none">' +
-  '<category name="Events" id="events" colour="#4C97FF" secondaryColour="#3373CC">' +
-  '<block type="event_whenflagclicked"></block>' +
-  '<block type="event_whenbroadcastreceived">' +
-  '<value name="CHOICE">' +
-  '<shadow type="dropdown_whenbroadcast">' +
-  '<field name="CHOICE">blue</field>' +
-  '</shadow>' +
-  '</value>' +
-  '</block>' +
-  '<block type="event_broadcast">' +
-  '<value name="CHOICE">' +
-  '<shadow type="dropdown_broadcast">' +
-  '<field name="CHOICE">blue</field>' +
-  '</shadow>' +
-  '</value>' +
-  '</block>' +
-  '</category>' +
-  '<category name="Handstands" id="handstands" colour="#4C97FF" secondaryColour="#3373CC">' +
-  '<block type="exercise_chest_to_wall">' +
-  '<value name="DURATION">' +
-  '<shadow type="math_positive_number">' +
-  '<field name="NUM">1</field>' +
-  '</shadow>' +
-  '</value>' +
-  '</block>' +
-  '<block type="exercise_back_to_wall">' +
-  '<value name="DURATION">' +
-  '<shadow type="math_positive_number">' +
-  '<field name="NUM">1</field>' +
-  '</shadow>' +
-  '</value>' +
-  '</block>' +
-  '</category>' +
-  '<category name="Calisthenics" id="calisthenics" colour="#4C97FF" secondaryColour="#3373CC">' +
-  '<block type="exercise_pull_up">' +
-  '<value name="DURATION">' +
-  '<shadow type="math_positive_number">' +
-  '<field name="NUM">1</field>' +
-  '</shadow>' +
-  '</value>' +
-  '</block>' +
-  '<block type="exercise_push_up">' +
-  '<value name="DURATION">' +
-  '<shadow type="math_positive_number">' +
-  '<field name="NUM">1</field>' +
-  '</shadow>' +
-  '</value>' +
-  '</block>' +
-  '</category>' +
-  '<category name="Control" id="control" colour="#FFAB19" secondaryColour="#CF8B17" >' +
-  '<block type="control_forever"></block>' +
-  '<block type="control_repeat">' +
-  '<value name="TIMES">' +
-  '<shadow type="math_whole_number">' +
-  '<field name="NUM">4</field>' +
-  '</shadow>' +
-  '</value>' +
-  '</block>' +
-  '<block type="control_stop"></block>' +
-  '<block type="control_wait">' +
-  '<value name="DURATION">' +
-  '<shadow type="math_positive_number">' +
-  '<field name="NUM">1</field>' +
-  '</shadow>' +
-  '</value>' +
-  '</block>' +
-  '</category>' +
-  '<category name="Wedo" id="wedo" colour="#9966FF" secondaryColour="#855CD6">' +
-  '<block type="wedo_setcolor">' +
-  '<value name="CHOICE">' +
-  '<shadow type="dropdown_wedo_setcolor">' +
-  '<field name="CHOICE">mystery</field>' +
-  '</shadow>' +
-  '</value>' +
-  '</block>' +
-  '<block type="wedo_motorclockwise">' +
-  '<value name="DURATION">' +
-  '<shadow type="math_positive_number">' +
-  '<field name="NUM">1</field>' +
-  '</shadow>' +
-  '</value>' +
-  '</block>' +
-  '<block type="wedo_motorcounterclockwise">' +
-  '<value name="DURATION">' +
-  '<shadow type="math_positive_number">' +
-  '<field name="NUM">1</field>' +
-  '</shadow>' +
-  '</value>' +
-  '</block>' +
-  '<block type="wedo_motorspeed">' +
-  '<value name="CHOICE">' +
-  '<shadow type="dropdown_wedo_motorspeed">' +
-  '<field name="CHOICE">fast</field>' +
-  '</shadow>' +
-  '</value>' +
-  '</block>' +
-  '<block type="wedo_whentilt">' +
-  '<value name="CHOICE">' +
-  '<shadow type="dropdown_wedo_whentilt">' +
-  '<field name="CHOICE">forward</field>' +
-  '</shadow>' +
-  '</value>' +
-  '</block>' +
-  '<block type="wedo_whendistanceclose"></block>' +
-  '</category>' +
-  '</xml>';
+Blockly.Blocks.defaultToolbox = {
+  "kind": "categoryToolbox",
+  "contents": [
 
-Blockly.Blocks.defaultToolboxSimple = '<xml id="toolbox-simple" style="display: none">' +
-  '<block type="event_whenflagclicked"></block>' +
-  '<block type="event_whenbroadcastreceived">' +
-  '<value name="CHOICE">' +
-  '<shadow type="dropdown_whenbroadcast">' +
-  '<field name="CHOICE">blue</field>' +
-  '</shadow>' +
-  '</value>' +
-  '</block>' +
-  '<block type="event_broadcast">' +
-  '<value name="CHOICE">' +
-  '<shadow type="dropdown_broadcast">' +
-  '<field name="CHOICE">blue</field>' +
-  '</shadow>' +
-  '</value>' +
-  '</block>' +
-  '<block type="control_forever"></block>' +
-  '<block type="control_repeat">' +
-  '<value name="TIMES">' +
-  '<shadow type="math_whole_number">' +
-  '<field name="NUM">4</field>' +
-  '</shadow>' +
-  '</value>' +
-  '</block>' +
-  '<block type="control_stop"></block>' +
-  '<block type="control_wait">' +
-  '<value name="DURATION">' +
-  '<shadow type="math_positive_number">' +
-  '<field name="NUM">1</field>' +
-  '</shadow>' +
-  '</value>' +
-  '</block>' +
-  '</xml>';
+    {
+      "kind": "category",
+      "name": "Handstands",
+      "id": "handstands",
+      "colour": "#CF63CF",
+      "secondaryColour": "#6c2c95",
+      "contents": [{
+          "kind": "block",
+          "type": "exercise_chest_to_wall",
+          "inputs": {
+            "DURATION": {
+              "shadow": {
+                "type": "math_positive_number",
+                "fields": {
+                  "NUM": "1"
+                }
+              }
+            }
+          }
+        },
+        {
+          "kind": "block",
+          "type": "exercise_back_to_wall",
+          "inputs": {
+            "DURATION": {
+              "shadow": {
+                "type": "math_positive_number",
+                "fields": {
+                  "NUM": "1"
+                }
+              }
+            }
+          }
+        }
+      ]
+    },
+    {
+      "kind": "category",
+      "name": "Calisthenics",
+      "id": "calisthenics",
+      "colour": "#4C97FF",
+      "secondaryColour": "#3373CC",
+      "contents": [{
+          "kind": "block",
+          "type": "exercise_pull_up",
+          "inputs": {
+            "DURATION": {
+              "shadow": {
+                "type": "math_positive_number",
+                "fields": {
+                  "NUM": "1"
+                }
+              }
+            }
+          }
+        },
+        {
+          "kind": "block",
+          "type": "exercise_push_up",
+          "inputs": {
+            "DURATION": {
+              "shadow": {
+                "type": "math_positive_number",
+                "fields": {
+                  "NUM": "1"
+                }
+              }
+            }
+          }
+        }
+      ]
+    },
+    {
+      "kind": "category",
+      "name": "Events",
+      "id": "events",
+      "colour": "#FFBF00",
+      "secondaryColour": "#E6AC00",
+      "contents": [{
+          "kind": "block",
+          "type": "event_whenflagclicked"
+        },
+        {
+          "kind": "block",
+          "type": "event_whenbroadcastreceived",
+          "inputs": {
+            "CHOICE": {
+              "shadow": {
+                "type": "dropdown_whenbroadcast",
+                "fields": {
+                  "CHOICE": "blue"
+                }
+              }
+            }
+          }
+        },
+        {
+          "kind": "block",
+          "type": "event_broadcast",
+          "inputs": {
+            "CHOICE": {
+              "shadow": {
+                "type": "dropdown_broadcast",
+                "fields": {
+                  "CHOICE": "blue"
+                }
+              }
+            }
+          }
+        }
+      ]
+    },
+    {
+      "kind": "category",
+      "name": "Control",
+      "id": "control",
+      "colour": "#FFAB19",
+      "secondaryColour": "#CF8B17",
+      "contents": [{
+          "kind": "block",
+          "type": "control_forever"
+        },
+        {
+          "kind": "block",
+          "type": "control_repeat",
+          "inputs": {
+            "TIMES": {
+              "shadow": {
+                "type": "math_whole_number",
+                "fields": {
+                  "NUM": "4"
+                }
+              }
+            }
+          }
+        },
+        {
+          "kind": "block",
+          "type": "control_stop"
+        },
+        {
+          "kind": "block",
+          "type": "control_wait",
+          "inputs": {
+            "DURATION": {
+              "shadow": {
+                "type": "math_positive_number",
+                "fields": {
+                  "NUM": "1"
+                }
+              }
+            }
+          }
+        }
+      ]
+    },
+  ]
+};
+
+Blockly.Blocks.defaultToolboxSimple = {
+  "kind": "flyoutToolbox",
+  "contents": [{
+      "kind": "block",
+      "type": "event_whenflagclicked"
+    },
+    {
+      "kind": "block",
+      "type": "event_whenbroadcastreceived",
+      "inputs": {
+        "CHOICE": {
+          "shadow": {
+            "type": "dropdown_whenbroadcast",
+            "fields": {
+              "CHOICE": "blue"
+            }
+          }
+        }
+      }
+    },
+    {
+      "kind": "block",
+      "type": "event_broadcast",
+      "inputs": {
+        "CHOICE": {
+          "shadow": {
+            "type": "dropdown_broadcast",
+            "fields": {
+              "CHOICE": "blue"
+            }
+          }
+        }
+      }
+    },
+    {
+      "kind": "block",
+      "type": "control_forever"
+    },
+    {
+      "kind": "block",
+      "type": "control_repeat",
+      "inputs": {
+        "TIMES": {
+          "shadow": {
+            "type": "math_whole_number",
+            "fields": {
+              "NUM": "4"
+            }
+          }
+        }
+      }
+    },
+    {
+      "kind": "block",
+      "type": "control_stop"
+    },
+    {
+      "kind": "block",
+      "type": "control_wait",
+      "inputs": {
+        "DURATION": {
+          "shadow": {
+            "type": "math_positive_number",
+            "fields": {
+              "NUM": "1"
+            }
+          }
+        }
+      }
+    }
+  ]
+};

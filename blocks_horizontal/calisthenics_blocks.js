@@ -14,20 +14,16 @@ Blockly.Blocks['exercise_pull_up'] = {
   init: function() {
     this.jsonInit({
       "id": "exercise_pull_up",
-      "message0": "%1 %2",
+      "message0": "%1",
       "args0": [
         {
           "type": "field_image",
           "src": Blockly.mainWorkspace.options.pathToMedia + "icons/exercise_icons/calisthenics/pull_up.svg",
-          "width": 50,
-          "height": 50,
+          "width": 40,
+          "height": 40,
           "alt": "Pull Up Exercise",
         },
-        {
-          "type": "input_value",
-          "name": "DURATION",
-          "check": "Number"
-        }
+        
       ],
       "inputsInline": true,
       "previousStatement": null,
@@ -50,20 +46,16 @@ Blockly.Blocks['exercise_push_up'] = {
   init: function() {
     this.jsonInit({
       "id": "exercise_push_up",
-      "message0": "%1 %2",
+      "message0": "%1",
       "args0": [
         {
           "type": "field_image",
           "src": Blockly.mainWorkspace.options.pathToMedia + "icons/exercise_icons/calisthenics/push_up.svg",
-          "width": 50,
-          "height": 50,
+          "width": 40,
+          "height": 40,
           "alt": "Push Up Exercise",
         },
-        {
-          "type": "input_value",
-          "name": "DURATION",
-          "check": "Number"
-        }
+        
       ],
       "inputsInline": true,
       "previousStatement": null,

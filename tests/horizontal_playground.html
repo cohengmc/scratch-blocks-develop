@@ -16,6 +16,7 @@
     <script src="../blocks_horizontal/default_toolbox.js"></script>
     <script src="../blocks_horizontal/calisthenics_blocks.js"></script>
     <script src="../blocks_horizontal/handstands_blocks.js"></script>
+    <script src="../core/json.js"></script>
     <script>
       'use strict';
 
@@ -86,7 +87,7 @@
         
         if (sessionStorage) {
           // Restore previously displayed text.
-          var text = sessionStorage.getItem('textarea');
+          var text = sessionStorage.getItem('textarea_json');
           if (text) {
             document.getElementById('importExport').value = text;
           }
@@ -104,35 +105,123 @@
 
       function getToolboxElement() {
         var match = location.search.match(/toolbox=([^&]+)/);
-        return document.getElementById('toolbox-' + (match ? match[1] : 'categories'));
+        var toolboxType = match ? match[1] : 'categories';
+        
+        console.log('Getting toolbox element for type:', toolboxType);
+        
+        // Get JSON toolbox and convert to XML for Blockly
+        var jsonToolbox;
+        if (toolboxType === 'categories') {
+          jsonToolbox = Blockly.Blocks.defaultToolbox;
+        } else if (toolboxType === 'simple') {
+          jsonToolbox = Blockly.Blocks.defaultToolboxSimple;
+        } else {
+          return null;
+        }
+        
+        console.log('Original toolbox:', jsonToolbox);
+        
+        // Add custom blocks to the toolbox
+        addCustomBlocksToToolbox(jsonToolbox);
+        
+        console.log('Toolbox after adding custom blocks:', jsonToolbox);
+        
+        // Convert JSON toolbox to XML
+        var xmlElement = convertJsonToolboxToXml(jsonToolbox);
+        console.log('Converted XML element:', xmlElement);
+        
+        return xmlElement;
       }
 
-      function toXml() {
+      function convertJsonToolboxToXml(jsonToolbox) {
+        var xmlString = '<xml style="display: none">';
+        
+        if (jsonToolbox.kind === 'categoryToolbox') {
+          // Handle category toolbox
+          for (var i = 0; i < jsonToolbox.contents.length; i++) {
+            var category = jsonToolbox.contents[i];
+            xmlString += '<category name="' + category.name + '" id="' + category.id + 
+                        '" colour="' + category.colour + '" secondaryColour="' + category.secondaryColour + '">';
+            
+            for (var j = 0; j < category.contents.length; j++) {
+              var block = category.contents[j];
+              xmlString += convertJsonBlockToXml(block);
+            }
+            
+            xmlString += '</category>';
+          }
+        } else if (jsonToolbox.kind === 'flyoutToolbox') {
+          // Handle simple flyout toolbox
+          for (var i = 0; i < jsonToolbox.contents.length; i++) {
+            var block = jsonToolbox.contents[i];
+            xmlString += convertJsonBlockToXml(block);
+          }
+        }
+        
+        xmlString += '</xml>';
+        
+        // Parse the XML string and return the DOM element
+        var parser = new DOMParser();
+        var xmlDoc = parser.parseFromString(xmlString, 'text/xml');
+        return xmlDoc.documentElement;
+      }
+
+      function convertJsonBlockToXml(blockJson) {
+        var xml = '<block type="' + blockJson.type + '">';
+        
+        if (blockJson.inputs) {
+          for (var inputName in blockJson.inputs) {
+            var input = blockJson.inputs[inputName];
+            xml += '<value name="' + inputName + '">';
+            
+            if (input.shadow) {
+              xml += '<shadow type="' + input.shadow.type + '">';
+              if (input.shadow.fields) {
+                for (var fieldName in input.shadow.fields) {
+                  xml += '<field name="' + fieldName + '">' + input.shadow.fields[fieldName] + '</field>';
+                }
+              }
+              xml += '</shadow>';
+            }
+            
+            xml += '</value>';
+          }
+        }
+        
+        xml += '</block>';
+        return xml;
+      }
+
+      function toJson() {
         var output = document.getElementById('importExport');
-        var xml = Blockly.Xml.workspaceToDom(workspace);
-        output.value = Blockly.Xml.domToPrettyText(xml);
+        var json = Blockly.Json.workspaceToJson(workspace);
+        output.value = Blockly.Json.workspaceToText(workspace);
         output.focus();
         output.select();
         taChange();
       }
 
-      function fromXml() {
+      function fromJson() {
         var input = document.getElementById('importExport');
-        var xml = Blockly.Xml.textToDom(input.value);
-        Blockly.Xml.domToWorkspace(workspace, xml);
-        taChange();
+        try {
+          Blockly.Json.textToWorkspace(input.value, workspace);
+          taChange();
+        } catch (e) {
+          console.error('Invalid JSON:', e);
+          alert('Invalid JSON format. Please check your input.');
+        }
       }
 
-      // Disable the "Import from XML" button if the XML is invalid.
+      // Disable the "Import from JSON" button if the JSON is invalid.
       // Preserve text between page reloads.
       function taChange() {
         var textarea = document.getElementById('importExport');
         if (sessionStorage) {
-          sessionStorage.setItem('textarea', textarea.value);
+          sessionStorage.setItem('textarea_json', textarea.value);
         }
         var valid = true;
         try {
-          Blockly.Xml.textToDom(textarea.value);
+          JSON.parse(textarea.value);
         } catch (e) {
           valid = false;
         }
@@ -202,10 +291,36 @@
           console.error('Toolbox not found; add a toolbox element to the DOM.');
           return;
         }
-        var blocks = toolbox.getElementsByTagName('block');
+        
+        // Handle JSON toolbox
+        var blocks = [];
+        if (toolbox.contents) {
+          // JSON toolbox
+          for (var i = 0; i < toolbox.contents.length; i++) {
+            var category = toolbox.contents[i];
+            if (category.contents) {
+              for (var j = 0; j < category.contents.length; j++) {
+                blocks.push(category.contents[j]);
+              }
+            }
+          }
+        } else {
+          // XML toolbox (fallback)
+          blocks = toolbox.getElementsByTagName('block');
+        }
+        
         for (var i = 0; i < n; i++) {
-          var blockXML = blocks[Math.floor(Math.random() * blocks.length)];
-          var block = Blockly.Xml.domToBlock(blockXML, workspace);
+          var blockDef = blocks[Math.floor(Math.random() * blocks.length)];
+          var block;
+          
+          if (blockDef.type) {
+            // JSON block definition
+            block = workspace.newBlock(blockDef.type);
+          } else {
+            // XML block element
+            block = Blockly.Xml.domToBlock(blockDef, workspace);
+          }
+          
           block.initSvg();
           block.moveBy(
             Math.round(Math.random() * 450 + 40),
@@ -304,28 +419,393 @@
         }
         fakeDragWrapper();
       }
+
+      // Store custom blocks
+      var customBlocks = {};
+      var customBlockDefinitions = {};
+
+      function createNewBlock() {
+        var blockTypeName = document.getElementById('blockTypeName').value.trim();
+        var blockColor = document.getElementById('blockColor').value;
+        var blockMessage = document.getElementById('blockMessage').value.trim();
+        
+        if (!blockTypeName) {
+          alert('Please enter a block type name');
+          return;
+        }
+        
+        if (!blockMessage) {
+          alert('Please enter a block message');
+          return;
+        }
+        
+        // Create the JSON definition with hardcoded args
+        var jsonDefinition = {
+          "id": blockTypeName,
+          "message0": "%1 " + blockMessage,
+          "args0": [
+            {
+              "type": "field_image",
+              "src": Blockly.mainWorkspace.options.pathToMedia + "icons/exercise_icons/calisthenics/push_up.svg",
+              "width": 50,
+              "height": 50,
+              "alt": "Push Up Exercise"
+            },
+            {
+              "type": "input_value",
+              "name": "DURATION",
+              "check": "Number"
+            }
+          ],
+          "inputsInline": true,
+          "previousStatement": null,
+          "nextStatement": null,
+          "colour": blockColor,
+          "colourSecondary": adjustColorBrightness(blockColor, -20),
+          "colourTertiary": adjustColorBrightness(blockColor, -40),
+          "colourQuaternary": adjustColorBrightness(blockColor, -60)
+        };
+        
+        // Register the block
+        Blockly.Blocks[blockTypeName] = {
+          init: function() {
+            this.jsonInit(jsonDefinition);
+          }
+        };
+        
+        // Store the definition
+        customBlockDefinitions[blockTypeName] = jsonDefinition;
+        
+        alert('Block "' + blockTypeName + '" created successfully!');
+        
+        // Update export area
+        updateCustomBlocksExport();
+      }
+      
+      function adjustColorBrightness(hexColor, percent) {
+        // Convert hex to RGB
+        var r = parseInt(hexColor.substr(1, 2), 16);
+        var g = parseInt(hexColor.substr(3, 2), 16);
+        var b = parseInt(hexColor.substr(5, 2), 16);
+        
+        // Adjust brightness
+        r = Math.max(0, Math.min(255, r + (r * percent / 100)));
+        g = Math.max(0, Math.min(255, g + (g * percent / 100)));
+        b = Math.max(0, Math.min(255, b + (b * percent / 100)));
+        
+        // Convert back to hex
+        return "#" + Math.round(r).toString(16).padStart(2, '0') + 
+               Math.round(g).toString(16).padStart(2, '0') + 
+               Math.round(b).toString(16).padStart(2, '0');
+      }
+
+      function addBlockToToolbox() {
+        var blockTypeName = document.getElementById('blockTypeName').value.trim();
+        var category = document.getElementById('blockCategory').value;
+        
+        if (!blockTypeName) {
+          alert('Please enter a block type name');
+          return;
+        }
+        
+        if (!customBlockDefinitions[blockTypeName]) {
+          alert('Please create the block first');
+          return;
+        }
+        
+        // Add to custom blocks storage
+        if (!customBlocks[category]) {
+          customBlocks[category] = [];
+        }
+        
+        // Check if block already exists in this category
+        var exists = customBlocks[category].some(function(block) {
+          return block.type === blockTypeName;
+        });
+        
+        if (exists) {
+          alert('Block already exists in this category');
+          return;
+        }
+        
+        // Add block to category
+        var blockEntry = {
+          "kind": "block",
+          "type": blockTypeName
+        };
+        
+        // Add inputs for the hardcoded structure
+        blockEntry.inputs = {
+          "DURATION": {
+            "shadow": {
+              "type": "math_positive_number",
+              "fields": {
+                "NUM": "1"
+              }
+            }
+          }
+        };
+        
+        customBlocks[category].push(blockEntry);
+        
+        console.log('Added block to category:', category);
+        console.log('Block entry:', blockEntry);
+        console.log('Current custom blocks:', customBlocks);
+        
+        // Refresh the workspace to update the toolbox
+        refreshWorkspace();
+        
+        alert('Block added to toolbox in category "' + category + '"');
+      }
+
+      function getDefaultShadowType(fieldType) {
+        switch (fieldType) {
+          case 'field_input':
+          case 'field_textinput':
+            return 'text';
+          case 'field_number':
+          case 'field_math_number':
+          case 'input_value':
+            return 'math_number';
+          case 'field_dropdown':
+            return 'dropdown_generic';
+          case 'field_checkbox':
+            return 'logic_boolean';
+          default:
+            return 'math_number';
+        }
+      }
+
+      function getDefaultFields(fieldType) {
+        switch (fieldType) {
+          case 'field_input':
+          case 'field_textinput':
+            return { "TEXT": "" };
+          case 'field_number':
+          case 'field_math_number':
+          case 'input_value':
+            return { "NUM": "1" };
+          case 'field_checkbox':
+            return { "BOOL": "FALSE" };
+          default:
+            return { "NUM": "1" };
+        }
+      }
+
+      function refreshWorkspace() {
+        // Simple approach: reload the page to refresh the toolbox
+        // This ensures all custom blocks are properly loaded
+        if (confirm('The toolbox needs to be refreshed to show your new block. Reload the page?')) {
+          location.reload();
+        }
+      }
+
+      function addCustomBlocksToToolbox(jsonToolbox) {
+        console.log('Adding custom blocks to toolbox:', customBlocks);
+        console.log('Toolbox kind:', jsonToolbox.kind);
+        
+        if (jsonToolbox.kind === 'categoryToolbox') {
+          // Add custom blocks to existing categories
+          for (var categoryName in customBlocks) {
+            var categoryBlocks = customBlocks[categoryName];
+            console.log('Processing category:', categoryName, 'with blocks:', categoryBlocks);
+            
+            // Find the category in the toolbox
+            var category = jsonToolbox.contents.find(function(cat) {
+              return cat.id === categoryName;
+            });
+            
+            if (category) {
+              console.log('Found existing category:', categoryName);
+              // Add blocks to existing category
+              category.contents = category.contents.concat(categoryBlocks);
+            } else {
+              console.log('Creating new category:', categoryName);
+              // Create new category
+              jsonToolbox.contents.push({
+                "kind": "category",
+                "name": categoryName.charAt(0).toUpperCase() + categoryName.slice(1),
+                "id": categoryName,
+                "colour": "#FF6680",
+                "secondaryColour": "#FF4D6A",
+                "contents": categoryBlocks
+              });
+            }
+          }
+        } else if (jsonToolbox.kind === 'flyoutToolbox') {
+          // Add custom blocks to simple toolbox
+          for (var categoryName in customBlocks) {
+            jsonToolbox.contents = jsonToolbox.contents.concat(customBlocks[categoryName]);
+          }
+        }
+        
+        console.log('Final toolbox contents:', jsonToolbox.contents);
+      }
+
+      function clearCustomBlocks() {
+        if (confirm('Are you sure you want to clear all custom blocks?')) {
+          customBlocks = {};
+          customBlockDefinitions = {};
+          
+          // Clear the workspace
+          workspace.clear();
+          
+          // Refresh the workspace
+          refreshWorkspace();
+          
+          // Clear the export area
+          document.getElementById('customBlocksExport').value = '';
+          
+          alert('All custom blocks cleared');
+        }
+      }
+
+      function exportCustomBlocks() {
+        var exportData = {
+          blocks: customBlockDefinitions,
+          toolbox: customBlocks
+        };
+        
+        document.getElementById('customBlocksExport').value = JSON.stringify(exportData, null, 2);
+      }
+
+      function importCustomBlocks() {
+        var importText = document.getElementById('customBlocksExport').value.trim();
+        
+        if (!importText) {
+          alert('Please enter custom blocks data to import');
+          return;
+        }
+        
+        try {
+          var importData = JSON.parse(importText);
+          
+          if (importData.blocks) {
+            customBlockDefinitions = importData.blocks;
+            
+            // Register all imported blocks
+            for (var blockType in customBlockDefinitions) {
+              var definition = customBlockDefinitions[blockType];
+              Blockly.Blocks[blockType] = {
+                init: function() {
+                  this.jsonInit(definition);
+                }
+              };
+            }
+          }
+          
+          if (importData.toolbox) {
+            customBlocks = importData.toolbox;
+          }
+          
+          // Refresh the workspace
+          refreshWorkspace();
+          
+          alert('Custom blocks imported successfully!');
+          
+        } catch (e) {
+          alert('Invalid JSON: ' + e.message);
+        }
+      }
+
+      function updateCustomBlocksExport() {
+        exportCustomBlocks();
+      }
+
+      // Load custom blocks from session storage on startup
+      if (sessionStorage) {
+        var savedCustomBlocks = sessionStorage.getItem('customBlocks');
+        var savedCustomBlockDefinitions = sessionStorage.getItem('customBlockDefinitions');
+        
+        if (savedCustomBlocks) {
+          try {
+            customBlocks = JSON.parse(savedCustomBlocks);
+          } catch (e) {
+            console.warn('Failed to load custom blocks from session storage:', e);
+          }
+        }
+        
+        if (savedCustomBlockDefinitions) {
+          try {
+            customBlockDefinitions = JSON.parse(savedCustomBlockDefinitions);
+            
+            // Register all loaded blocks
+            for (var blockType in customBlockDefinitions) {
+              var definition = customBlockDefinitions[blockType];
+              Blockly.Blocks[blockType] = {
+                init: function() {
+                  this.jsonInit(definition);
+                }
+              };
+            }
+          } catch (e) {
+            console.warn('Failed to load custom block definitions from session storage:', e);
+          }
+        }
+      }
+
+      // Save custom blocks to session storage when they change
+      function saveCustomBlocksToStorage() {
+        if (sessionStorage) {
+          sessionStorage.setItem('customBlocks', JSON.stringify(customBlocks));
+          sessionStorage.setItem('customBlockDefinitions', JSON.stringify(customBlockDefinitions));
+        }
+      }
+
+      // Override the original functions to save to storage
+      var originalCreateNewBlock = createNewBlock;
+      createNewBlock = function() {
+        originalCreateNewBlock();
+        saveCustomBlocksToStorage();
+      };
+
+      var originalAddBlockToToolbox = addBlockToToolbox;
+      addBlockToToolbox = function() {
+        originalAddBlockToToolbox();
+        saveCustomBlocksToStorage();
+      };
+
+      var originalClearCustomBlocks = clearCustomBlocks;
+      clearCustomBlocks = function() {
+        originalClearCustomBlocks();
+        saveCustomBlocksToStorage();
+      };
+
+      var originalImportCustomBlocks = importCustomBlocks;
+      importCustomBlocks = function() {
+        originalImportCustomBlocks();
+        saveCustomBlocksToStorage();
+      };
+
     </script>
 
     <style>
       html, body {
         height: 100%;
+        margin: 0;
+        padding: 0;
       }
 
       body {
         background-color: #fff;
         font-family: sans-serif;
-        overflow: hidden;
+        overflow-x: hidden;
+        overflow-y: auto;
       }
 
       h1 {
         font-weight: normal;
         font-size: 140%;
+        margin-top: 0;
       }
 
       #blocklyDiv {
-        float: right;
-        height: 95%;
+        position: fixed;
+        top: 0;
+        right: 0;
+        height: 100vh;
         width: 70%;
+        z-index: 1;
       }
 
       #collaborators {
@@ -345,6 +825,70 @@
       #importExport {
         font-family: monospace;
       }
+
+      /* Sidebar styles */
+      .sidebar {
+        width: 28%;
+        padding: 10px;
+        margin-right: 2%;
+        float: left;
+        overflow-y: auto;
+        max-height: 100vh;
+      }
+
+      /* Dynamic Block Creator specific styles */
+      .block-creator {
+        background-color: #f5f5f5;
+        border: 1px solid #ddd;
+        border-radius: 5px;
+        padding: 15px;
+        margin-top: 20px;
+      }
+
+      .block-creator h2 {
+        margin-top: 0;
+        color: #333;
+      }
+
+      .block-creator input[type="text"],
+      .block-creator select,
+      .block-creator textarea {
+        width: 100%;
+        box-sizing: border-box;
+        margin-bottom: 10px;
+        padding: 5px;
+        border: 1px solid #ccc;
+        border-radius: 3px;
+      }
+
+      .block-creator label {
+        display: block;
+        margin-bottom: 5px;
+        font-weight: bold;
+      }
+
+      .block-creator input[type="button"] {
+        margin-right: 10px;
+        margin-bottom: 10px;
+        padding: 8px 15px;
+        background-color: #4C97FF;
+        color: white;
+        border: none;
+        border-radius: 3px;
+        cursor: pointer;
+      }
+
+      .block-creator input[type="button"]:hover {
+        background-color: #3373CC;
+      }
+
+      .block-creator input[type="button"][value="Clear All Custom Blocks"] {
+        background-color: #FF6680;
+      }
+
+      .block-creator input[type="button"][value="Clear All Custom Blocks"]:hover {
+        background-color: #FF4D6A;
+      }
     </style>
   </head>
 
@@ -353,71 +897,121 @@
     <div id="blocklyDiv"></div>
 
     <!-- Sidebar -->
-    <h1>Horizontal Blocks</h1>
-    <p>
-      <a href="javascript:void(workspace.setVisible(true))">Show</a>
-      - <a href="javascript:void(workspace.setVisible(false))">Hide</a>
-    </p>
+    <div class="sidebar">
+      <h1>Horizontal Blocks</h1>
+      <p>
+        <a href="javascript:void(workspace.setVisible(true))">Show</a>
+        - <a href="javascript:void(workspace.setVisible(false))">Hide</a>
+      </p>
 
-    <form id="options">
-        <select name="dir" onchange="document.forms.options.submit()">
-          <option value="ltr">LTR</option>
-          <option value="rtl">RTL</option>
-        </select>
-        <select name="toolbox" onchange="document.forms.options.submit()">
-          <option value="categories">Categories</option>
-          <option value="simple">Simple</option>
-        </select>
-        <select name="side" onchange="document.forms.options.submit()">
-          <option value="start">Start</option>
-          <option value="end">End</option>
-          <option value="top">Top</option>
-          <option value="bottom">Bottom</option>
-        </select>
-      </form>
+      <form id="options">
+          <select name="dir" onchange="document.forms.options.submit()">
+            <option value="ltr">LTR</option>
+            <option value="rtl">RTL</option>
+          </select>
+          <select name="toolbox" onchange="document.forms.options.submit()">
+            <option value="categories">Categories</option>
+            <option value="simple">Simple</option>
+          </select>
+          <select name="side" onchange="document.forms.options.submit()">
+            <option value="start">Start</option>
+            <option value="end">End</option>
+            <option value="top">Top</option>
+            <option value="bottom">Bottom</option>
+          </select>
+        </form>
 
-    <p>
-      <input type="button" value="Export to XML" onclick="toXml()">
-      &nbsp;
-      <input type="button" value="Import from XML" onclick="fromXml()" id="import">
-      <br>
-      <textarea id="importExport" style="width: 26%; height: 12em"
-        onchange="taChange();" onkeyup="taChange()"></textarea>
-    </p>
+      <p>
+        <input type="button" value="Export to JSON" onclick="toJson()">
+        &nbsp;
+        <input type="button" value="Import from JSON" onclick="fromJson()" id="import">
+        <br>
+        <textarea id="importExport" style="width: 100%; height: 12em"
+          onchange="taChange();" onkeyup="taChange()"></textarea>
+      </p>
 
-    <p>
-      Log events: &nbsp;
-      <input type="checkbox" onclick="logEvents(this.checked)" id="logCheck">
-    </p>
+      <p>
+        Log events: &nbsp;
+        <input type="checkbox" onclick="logEvents(this.checked)" id="logCheck">
+      </p>
 
-    <p>
-      Log flyout events: &nbsp;
-      <input type="checkbox" onclick="logFlyoutEvents(this.checked)" id="logFlyoutCheck">
-    </p>
+      <p>
+        Log flyout events: &nbsp;
+        <input type="checkbox" onclick="logFlyoutEvents(this.checked)" id="logFlyoutCheck">
+      </p>
 
-    <p>
-      Enable sounds (after refresh): &nbsp;
-      <input type="checkbox" onclick="setSoundsEnabled(this.checked)" id="soundsEnabled">
-    </p>
+      <p>
+        Enable sounds (after refresh): &nbsp;
+        <input type="checkbox" onclick="setSoundsEnabled(this.checked)" id="soundsEnabled">
+      </p>
 
-    <p>
-      Stress test: &nbsp;
-      <input type="button" value="Sprinkles!" onclick="sprinkles(100)">
-      <input type="button" value="Spaghetti!" onclick="spaghetti(10)">
-      <input type="button" value="Fake some drags!" onclick="fakeManyDrags()">
-    </p>
+      <p>
+        Stress test: &nbsp;
+        <input type="button" value="Sprinkles!" onclick="sprinkles(100)">
+        <input type="button" value="Spaghetti!" onclick="spaghetti(10)">
+        <input type="button" value="Fake some drags!" onclick="fakeManyDrags()">
+      </p>
 
-    <p>
-      Glows: &nbsp;
-      <input type="button" value="Glow last clicked block" onclick="glowBlock()" />
-      <input type="button" value="Unglow last clicked block" onclick="unglowBlock()" />
-      <input type="button" value="Stack glow last clicked block" onclick="glowStack()" />
-      <input type="button" value="Stack unglow last clicked block" onclick="unglowStack()" />
-    </p>
+      <p>
+        Glows: &nbsp;
+        <input type="button" value="Glow last clicked block" onclick="glowBlock()" />
+        <input type="button" value="Unglow last clicked block" onclick="unglowBlock()" />
+        <input type="button" value="Stack glow last clicked block" onclick="glowStack()" />
+        <input type="button" value="Stack unglow last clicked block" onclick="unglowStack()" />
+      </p>
 
-    <p>
-      <input type="button" value="Undo" onclick="workspace.undo()" />
-      <input type="button" value="Redo" onclick="workspace.undo(true)" />
-    </p>
+      <p>
+        <input type="button" value="Undo" onclick="workspace.undo()" />
+        <input type="button" value="Redo" onclick="workspace.undo(true)" />
+      </p>
+
+      <!-- Dynamic Block Creator -->
+      <div class="block-creator">
+        <h2>Dynamic Block Creator</h2>
+        <p>
+          Create new exercise block types with customizable colors and messages.
+        </p>
+        
+        <div style="margin-bottom: 10px;">
+          <label for="blockTypeName">Block Type Name:</label>
+          <input type="text" id="blockTypeName" placeholder="exercise_push_up">
+        </div>
+        
+        <div style="margin-bottom: 10px;">
+          <label for="blockColor">Block Color:</label>
+          <input type="color" id="blockColor" value="#4C97FF" style="width: 100px; height: 40px;">
+        </div>
+        
+        <div style="margin-bottom: 10px;">
+          <label for="blockMessage">Block Message:</label>
+          <input type="text" id="blockMessage" placeholder="for %2 seconds" value="for %2 seconds">
+        </div>
+        
+        <div style="margin-bottom: 10px;">
+          <label for="blockCategory">Category:</label>
+          <select id="blockCategory">
+            <option value="custom">Custom</option>
+            <option value="events">Events</option>
+            <option value="control">Control</option>
+            <option value="handstands">Handstands</option>
+            <option value="calisthenics">Calisthenics</option>
+            <option value="wedo">Wedo</option>
+          </select>
+        </div>
+        
+        <div style="margin-bottom: 10px;">
+          <input type="button" value="Create Block" onclick="createNewBlock()">
+          <input type="button" value="Add to Toolbox" onclick="addBlockToToolbox()">
+          <input type="button" value="Clear All Custom Blocks" onclick="clearCustomBlocks()">
+        </div>
+        
+        <div style="margin-bottom: 10px;">
+          <label for="customBlocksExport">Export Custom Blocks:</label>
+          <textarea id="customBlocksExport" style="height: 100px; font-family: monospace;" readonly></textarea>
+          <input type="button" value="Export" onclick="exportCustomBlocks()">
+          <input type="button" value="Import" onclick="importCustomBlocks()">
+        </div>
+      </div>
+    </div>
   </body>
 </html>
